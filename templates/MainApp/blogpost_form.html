@@ -1,0 +1,19 @@
+{% extends "MainApp/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-md-6 mx-auto">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="control-group">
+                {{ form.media }}
+                {{ form|crispy }}
+            </div>
+            <button class="btn btn-outline-info float-right" type="submit">Create this article!</button>     
+        </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,124 @@
+{% extends "MainApp/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<style>
+  .comment-wrapper .media-list .media img {
+    width:64px;
+    height:64px;
+    border:2px solid #e5e7e8;
+    margin-right:20px;
+  }
+  .comment-wrapper .media-list .media {
+    border-bottom:1px dashed #efefef;
+    margin-bottom:10px;
+  }
+</style>
+<!-- highlight.js-->
+<link rel="stylesheet" 
+href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- highlight.js -->
+
+<!-- MAIN ARTICLE/BLOG CONTENT -->
+<article>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-8 mx-auto">
+
+        {% if object.author == user %}
+        <div style="text-align: center;">
+          <a class="btn btn-outline-info" href="{% url 'blogpost-update' object.id %}">Update this article</a>
+          <a class="btn btn-danger" href="{% url 'blogpost-delete' object.id %}">Delete</a>
+        </div>
+        {% endif %}
+
+        {{object.content|safe}}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- LIKES & COMMENTS SECTION WITH FORM -->
+  <div class="container">
+    <div class="row bootstrap snippets bootdeys">
+      <div class="col-md-12 col-sm-14">
+        <div class="comment-wrapper">
+          <div class="panel panel-info">
+
+            <!-- LIKES -->
+            {% if user.is_authenticated %}
+              <form action="{% url 'blogpost_like' object.id %}" method="POST">
+                {% csrf_token %}
+
+                {% if post_is_liked %}
+                <button type="submit" name="blogpost_id" value="{{object.id}}" class="btn btn-info">Unlike <i class="fas fa-heart-broken"></i></button>
+                {% else %}
+                <button type="submit" name="blogpost_id" value="{{object.id}}" class="btn btn-info">Like <i class="fas fa-heart"></i></button>
+                {% endif %}
+              </form>
+            {% else %}
+              <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to like this article!</a><br>
+            {% endif %}
+            <strong class="text-secondary">{{ number_of_likes }} Like{{ number_of_likes|pluralize }}</strong>
+            <br><br>
+
+            <!-- COMMENTS  -->
+            <div class="panel-heading">
+              <h2>Leave your comment!</h2>
+            </div>
+
+            <div id="comments_section">
+
+              {% if user.is_authenticated %}
+              <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                  {{ comment_form.media }}
+                  {{ comment_form|crispy }}
+                  <button class="btn btn-info" type="submit">Add comment <i class="fas fa-comments"></i></button>
+                </div>
+              </form>
+              {% else %}
+              <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to add a comment!</a><br>
+              {% endif %}
+
+              {% if comments %}
+              <strong class="text-secondary">{{ object.number_of_comments }} Comment{{ object.number_of_comments|pluralize }}</strong>
+              {% endif %}
+              <hr>
+              <ul class="media-list">
+                {% for comment in comments %}
+                <li class="media">            
+                  <div class="pull-left">
+                    <!-- <img src="https://bootdey.com/img/Content/user_1.jpg" alt="" class="img-circle"> -->
+                    <i style="color: #17A2B8FF; margin-right: 20px" class="fas fa-user-circle fa-3x"></i>
+                  </div>
+
+                  <div class="media-body">
+                    <span class="text-muted">
+                      <strong class="text-info">{{ comment.author }} </strong>
+                      <small class="text-muted">{{ comment.date_posted }}</small>
+                    </span>
+                    <p>
+                      {{ comment.content|safe }}
+                    </p>
+                  </div>
+                </li>
+                {% empty %}
+                <li class="media">
+                  <strong class="text-secondary">No comments yet...</strong>
+                </li>
+                {% endfor %}
+              </ul>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</article>
+{% endblock content %}

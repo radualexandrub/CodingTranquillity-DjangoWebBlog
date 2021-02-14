@@ -1,0 +1,90 @@
+{% extends "MainApp/base.html" %}
+{% block content %}
+<style >
+  ul.pagination {
+      display: inline-block;
+      padding: 0;
+      margin: 0;
+  }
+  ul.pagination li {display: inline;}
+  ul.pagination li a {
+      color: black;
+      float: left;
+      padding: 8px 16px;
+      text-decoration: none;
+  }
+  ul.pagination li a.active {
+      background-color: #3385A1;
+      color: white;
+  }
+  ul.pagination li a:hover:not(.active) {background-color: #ddd;}
+  ul.pagination li a {
+      transition: background-color .3s;
+  }
+  ul.pagination li a {
+      border: 1px solid #ddd; /* Gray */
+  }
+  div.center {
+      text-align: center;
+  }
+</style>
+    <!-- Main Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-8 mx-auto">
+
+          {% for post in posts %}
+            <div class="post-preview">
+              <a href="{% url 'blogpost-detail' post.id %}">
+                <h2 class="post-title">
+                  {{post.title}}
+                </h2>
+                {% if post.subtitle %}
+                <h3 class="post-subtitle">
+                  {{post.subtitle}}
+                </h3>  
+                {% endif %}
+              </a>
+              {% if post.image %}
+                <img src="{{post.image.url}}" alt="" style="width: 100%">
+              {% endif %}
+              <p class="post-meta">
+                Posted by <a href="{% url 'user-posts' post.author.username %}">{{post.author}}</a> on {{post.date_posted|date:"l, d M, Y"}}<br>
+                <a href="{% url 'blogpost-detail' post.id %}#comments_section">{{ post.comments.count }} comments</a>
+              </p>
+            </div>
+            <hr>
+          {% endfor %}
+
+          <!-- Pagination -->
+          <div class="center">
+            <ul class="pagination center">
+            {% if is_paginated %}
+
+                {% if page_obj.has_previous %}
+                  <li><a href="?page=1">&laquo;</a></li>
+                  <li><a href="?page={{page_obj.previous_page_number}}">Prev</a></li>
+                {% endif %}
+
+                <!-- Handle the current page -->
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li><a class="active" href="?page={{ num }}">{{ num }}</a></li>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li><a href="?page={{ num }}">{{ num }}</a></li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li><a href="?page={{page_obj.next_page_number}}">Next</a></li>
+                  <li><a href="?page={{page_obj.paginator.num_pages}}">&raquo;</a></li>
+                {% endif %}
+
+            {% endif %}
+            </ul>      
+          </div>
+
+        </div>
+      </div>
+    </div>
+{% endblock content %}
